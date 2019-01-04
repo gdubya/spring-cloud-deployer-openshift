@@ -50,7 +50,7 @@ public class VolumeMountConfigServerFactoryTest {
 		List<VolumeMount> volumeMounts = volumeMountFactory.addObject(request, "1");
 
 		assertThat(volumeMounts).first()
-				.isEqualTo(new VolumeMount("/mnt/test", "testVolume", null, null));
+				.isEqualTo(new VolumeMount("/mnt/test", null, "testVolume", null, null));
 	}
 
 	@Test
@@ -65,7 +65,7 @@ public class VolumeMountConfigServerFactoryTest {
 		List<VolumeMount> volumeMounts = volumeMountFactory.addObject(request, "1");
 
 		assertThat(volumeMounts).first().isEqualTo(
-				new VolumeMount("/mnt/test/overridden", "testVolume", null, null));
+				new VolumeMount("/mnt/test/overridden", null, "testVolume", null, null));
 	}
 
 	@Test
@@ -86,7 +86,7 @@ public class VolumeMountConfigServerFactoryTest {
 		List<VolumeMount> volumeMounts = volumeMountFactory.addObject(request, "1");
 
 		assertThat(volumeMounts).first().isEqualTo(
-				new VolumeMount("/mnt/test/deployer", "testVolume", null, null));
+				new VolumeMount("/mnt/test/deployer", null, "testVolume", null, null));
 	}
 
 }

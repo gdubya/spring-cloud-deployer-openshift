@@ -215,14 +215,20 @@ public class MavenOpenShiftAppDeployerIntegrationTest
 		String mountName = "mount";
 		OpenShiftDeployerProperties openShiftDeployerProperties = new OpenShiftDeployerProperties();
 		//@formatter:off
+		HostPathVolumeSource hostPathVolumeSource = new HostPathVolumeSource();
+		hostPathVolumeSource.setPath(hostPath);
 		openShiftDeployerProperties.setVolumes(Collections.singletonList(
 			new VolumeBuilder()
-				.withHostPath(new HostPathVolumeSource(hostPath))
+				.withHostPath(hostPathVolumeSource)
 				.withName(mountName)
 				.build()));
 		//@formatter:on
-		openShiftDeployerProperties.setVolumeMounts(Collections
-				.singletonList(new VolumeMount(hostPath, mountName, false, null)));
+		VolumeMount volumeMount = new VolumeMount();
+		volumeMount.setMountPath(hostPath);
+		volumeMount.setName(mountName);
+		volumeMount.setReadOnly(false);
+		openShiftDeployerProperties
+				.setVolumeMounts(Collections.singletonList(volumeMount));
 		ContainerFactory containerFactory = new OpenShiftContainerFactory(
 				new OpenShiftDeployerProperties(),
 				new VolumeMountFactory(openShiftDeployerProperties));

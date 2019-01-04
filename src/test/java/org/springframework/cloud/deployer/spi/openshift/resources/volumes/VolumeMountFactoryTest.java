@@ -30,7 +30,7 @@ public class VolumeMountFactoryTest {
 		List<VolumeMount> volumeMounts = volumeMountFactory.addObject(request, "1");
 
 		assertThat(volumeMounts).first()
-				.isEqualTo(new VolumeMount("/mnt/test", "testVolume", null, null));
+				.isEqualTo(new VolumeMount("/mnt/test", null, "testVolume", null, null));
 	}
 
 	@Test
@@ -44,7 +44,7 @@ public class VolumeMountFactoryTest {
 		List<VolumeMount> volumeMounts = volumeMountFactory.addObject(request, "1");
 
 		assertThat(volumeMounts).first()
-				.isEqualTo(new VolumeMount("/mnt/test", "testVolume", true, null));
+				.isEqualTo(new VolumeMount("/mnt/test", null, "testVolume", true, null));
 	}
 
 }

@@ -1,7 +1,7 @@
 package org.springframework.cloud.deployer.spi.openshift;
 
 import com.google.common.collect.ImmutableMap;
-import io.fabric8.kubernetes.api.model.Job;
+import io.fabric8.kubernetes.api.model.batch.Job;
 import io.fabric8.openshift.client.OpenShiftClient;
 import org.hamcrest.Matchers;
 import org.junit.ClassRule;

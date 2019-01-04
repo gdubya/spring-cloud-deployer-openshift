@@ -1,21 +1,25 @@
 package org.springframework.cloud.deployer.spi.openshift.resources.volumes;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
-import java.util.List;
-
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import io.fabric8.kubernetes.api.model.HostPathVolumeSource;
+import io.fabric8.kubernetes.api.model.HostPathVolumeSourceBuilder;
+import io.fabric8.kubernetes.api.model.NFSVolumeSource;
+import io.fabric8.kubernetes.api.model.NFSVolumeSourceBuilder;
+import io.fabric8.kubernetes.api.model.PersistentVolumeClaimVolumeSource;
+import io.fabric8.kubernetes.api.model.PersistentVolumeClaimVolumeSourceBuilder;
+import io.fabric8.kubernetes.api.model.Volume;
+import io.fabric8.kubernetes.api.model.VolumeBuilder;
 import org.junit.Test;
 import org.springframework.cloud.deployer.spi.core.AppDefinition;
 import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
 import org.springframework.cloud.deployer.spi.openshift.OpenShiftDeployerProperties;
 import org.springframework.core.io.Resource;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import java.util.List;
 
-import io.fabric8.kubernetes.api.model.Volume;
-import io.fabric8.kubernetes.api.model.VolumeBuilder;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class VolumeFactoryTest {
 
@@ -39,14 +43,28 @@ public class VolumeFactoryTest {
 
 		List<Volume> volumes = volumeFactory.addObject(request, "1");
 
-		assertThat(volumes).containsOnly(
-				new VolumeBuilder().withName("testhostpath")
-						.withNewHostPath("/test/override/hostPath").build(),
-				new VolumeBuilder().withName("testpvc")
-						.withNewPersistentVolumeClaim("testClaim", true).build(),
-				new VolumeBuilder().withName("testnfs")
-						.withNewNfs("/test/override/nfs", null, "192.168.1.1:111")
-						.build());
+		HostPathVolumeSource testhostpath = new HostPathVolumeSourceBuilder().build();
+		testhostpath.setPath("/test/override/hostPath");
+		Volume hostPathVolume = new Volume();
+		hostPathVolume.setName("testhostpath");
+		hostPathVolume.setHostPath(testhostpath);
+
+		PersistentVolumeClaimVolumeSource testpvc = new PersistentVolumeClaimVolumeSourceBuilder()
+				.build();
+		testpvc.setClaimName("testClaim");
+		testpvc.setReadOnly(true);
+		Volume persistentVolume = new Volume();
+		persistentVolume.setName("testpvc");
+		persistentVolume.setPersistentVolumeClaim(testpvc);
+
+		NFSVolumeSource testnfs = new NFSVolumeSourceBuilder().build();
+		testnfs.setPath("/test/override/nfs");
+		testnfs.setServer("192.168.1.1:111");
+		Volume nfsVolume = new Volume();
+		nfsVolume.setName("testnfs");
+		nfsVolume.setNfs(testnfs);
+
+		assertThat(volumes).containsOnly(hostPathVolume, persistentVolume, nfsVolume);
 	}
 
 }

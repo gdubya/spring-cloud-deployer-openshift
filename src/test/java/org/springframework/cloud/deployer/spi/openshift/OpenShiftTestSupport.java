@@ -1,6 +1,7 @@
 package org.springframework.cloud.deployer.spi.openshift;
 
 import org.springframework.boot.Banner;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -32,8 +33,8 @@ public class OpenShiftTestSupport
 
 	@Override
 	protected void obtainResource() throws Exception {
-		context = new SpringApplicationBuilder().web(false).bannerMode(Banner.Mode.OFF)
-				.sources(Config.class).run();
+		context = new SpringApplicationBuilder().web(WebApplicationType.NONE)
+				.bannerMode(Banner.Mode.OFF).sources(Config.class).run();
 		resource = context.getBean(KubernetesClient.class);
 		resource.namespaces().list();
 	}

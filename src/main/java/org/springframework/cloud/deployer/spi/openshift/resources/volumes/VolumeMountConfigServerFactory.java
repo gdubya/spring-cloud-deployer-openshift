@@ -1,14 +1,11 @@
 package org.springframework.cloud.deployer.spi.openshift.resources.volumes;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
+import io.fabric8.kubernetes.api.model.VolumeMount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.bind.PropertiesConfigurationFactory;
+import org.springframework.boot.context.properties.bind.Binder;
+import org.springframework.boot.context.properties.source.ConfigurationPropertySource;
+import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
 import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
 import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
 import org.springframework.cloud.deployer.spi.openshift.OpenShiftDeployerProperties;
@@ -18,7 +15,11 @@ import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.StandardEnvironment;
 
-import io.fabric8.kubernetes.api.model.VolumeMount;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 public class VolumeMountConfigServerFactory extends VolumeMountFactory {
 
@@ -56,11 +57,13 @@ public class VolumeMountConfigServerFactory extends VolumeMountFactory {
 		propertySources.addFirst(propertySource);
 
 		try {
-			PropertiesConfigurationFactory<VolumeMountProperties> factory = new PropertiesConfigurationFactory<>(
-					new VolumeMountProperties());
-			factory.setPropertySources(propertySources);
-			factory.afterPropertiesSet();
-			VolumeMountProperties configVolumeProperties = factory.getObject();
+			Iterable<ConfigurationPropertySource> sources = ConfigurationPropertySources
+					.from(propertySources);
+			Binder binder = new Binder(sources);
+			VolumeMountProperties configVolumeProperties = binder
+					.bind("", VolumeMountProperties.class)
+					.orElseCreate(VolumeMountProperties.class);
+
 			volumeMounts.addAll(configVolumeProperties.getVolumeMounts());
 		}
 		catch (Exception e) {

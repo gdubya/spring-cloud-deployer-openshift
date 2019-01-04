@@ -1,20 +1,20 @@
 package org.springframework.cloud.deployer.spi.openshift.resources.volumes;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import io.fabric8.kubernetes.api.model.VolumeMount;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.boot.bind.YamlConfigurationFactory;
 import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
 import org.springframework.cloud.deployer.spi.kubernetes.KubernetesDeployerProperties;
 import org.springframework.cloud.deployer.spi.openshift.OpenShiftDeployerProperties;
 import org.springframework.cloud.deployer.spi.openshift.OpenShiftDeploymentPropertyKeys;
 import org.springframework.cloud.deployer.spi.openshift.resources.ObjectFactory;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 
-import io.fabric8.kubernetes.api.model.VolumeMount;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Use the Fabric8 {@link VolumeMount} model to allow all volume plugins currently
@@ -57,14 +57,13 @@ public class VolumeMountFactory implements ObjectFactory<List<VolumeMount>> {
 						StringUtils.EMPTY);
 		if (!org.springframework.util.StringUtils
 				.isEmpty(volumeMountDeploymentProperty)) {
-			YamlConfigurationFactory<KubernetesDeployerProperties> volumeMountYamlConfigurationFactory = new YamlConfigurationFactory<>(
-					KubernetesDeployerProperties.class);
-			volumeMountYamlConfigurationFactory
-					.setYaml("{ volumeMounts: " + volumeMountDeploymentProperty + " }");
+			String volumesYaml = "{ volumeMounts: " + volumeMountDeploymentProperty
+					+ " }";
+			Constructor constructor = new Constructor(KubernetesDeployerProperties.class);
 			try {
-				volumeMountYamlConfigurationFactory.afterPropertiesSet();
-				volumeMounts.addAll(volumeMountYamlConfigurationFactory.getObject()
-						.getVolumeMounts());
+				KubernetesDeployerProperties kubernetesDeployerProperties = new Yaml(
+						constructor).load(volumesYaml);
+				volumeMounts.addAll(kubernetesDeployerProperties.getVolumeMounts());
 			}
 			catch (Exception e) {
 				throw new IllegalArgumentException(String.format(
